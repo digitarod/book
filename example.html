@@ -1,23 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
+<html>
 <head>
-<link rel="stylesheet" href="example.css" />
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"
-    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" 
-    crossorigin="anonymous"></script> <!--jQueryをCDNから取得-->
-<script type="text/javascript" src="turn.js/turn.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="../../turn.min.js"></script>
+
+<style type="text/css">
+body{
+	background:#ccc;
+}
+#magazine{
+	width:1152px;
+	height:752px;
+}
+#magazine .turn-page{
+	background-color:#ccc;
+	background-size:100% 100%;
+}
+</style>
 </head>
 <body>
-<div id="flipbook">
-    <div>page1</div>
-    <div>page2</div>
-    <div>page3</div>
-    <div>page4</div>
-    <div>page5</div>
-    <div>page6</div>
+
+<div id="magazine">
+	<div style="background-image:url(pages/01.jpg);"></div>
+	<div style="background-image:url(pages/02.jpg);"></div>
+	<div style="background-image:url(pages/03.jpg);"></div>
+	<div style="background-image:url(pages/04.jpg);"></div>
+	<div style="background-image:url(pages/05.jpg);"></div>
+	<div style="background-image:url(pages/06.jpg);"></div>
 </div>
-</body>
+
+
 <script type="text/javascript">
-	$("#flipbook").turn({
+
+	$(window).ready(function() {
+		$('#magazine').turn({
+							display: 'double',
+							acceleration: true,
+							gradients: !$.isTouch,
+							elevation:50,
+							when: {
+								turned: function(e, page) {
+									/*console.log('Current view: ', $(this).turn('view'));*/
+								}
+							}
+						});
 	});
+	
+	
+	$(window).bind('keydown', function(e){
+		
+		if (e.keyCode==37)
+			$('#magazine').turn('previous');
+		else if (e.keyCode==39)
+			$('#magazine').turn('next');
+			
+	});
+
 </script>
+
+</body>
 </html>
