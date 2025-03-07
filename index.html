@@ -22,9 +22,9 @@
 
         /* タイトル */
         #title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
@@ -36,14 +36,14 @@
         }
 
         #magazine {
-            width: 1000px;
-            height: 600px;
+            width: 1000px; /* ページサイズを小さく */
+            height: 700px;
             position: relative;
         }
 
         #magazine .turn-page {
-            width: 500px;
-            height: 600px;
+            width: 500px; /* 1ページ分の幅 */
+            height: 700px;
             background-color: #fff;
             background-size: cover;
             background-position: center;
@@ -54,11 +54,11 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 80px;
-            height: 120px;
+            width: 70px;
+            height: 110px;
             background: rgba(0, 0, 0, 0.5);
             color: white;
-            font-size: 40px;
+            font-size: 35px;
             font-weight: bold;
             display: flex;
             justify-content: center;
@@ -74,20 +74,20 @@
         }
 
         #prev-button {
-            left: -100px;
+            left: -90px;
         }
 
         #next-button {
-            right: -100px;
+            right: -90px;
         }
 
         /* ページ番号 */
         #page-numbers {
             display: flex;
             justify-content: space-between;
-            width: 1200px;
+            width: 1000px;
             margin-top: 10px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
         }
     </style>
@@ -123,8 +123,8 @@
 <script>
     $(document).ready(function () {
         $('#magazine').turn({
-            width: 1200,  
-            height: 800,
+            width: 1000,  
+            height: 700,
             autoCenter: true,
             display: 'double',
             gradients: true,
