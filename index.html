@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turn.js Page Flip</title>
 
-    <!-- jQuery のバージョンを最新に変更 -->
+    <!-- jQuery & Turn.js -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
 
@@ -17,6 +17,13 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            position: relative;
+        }
+
+        #container {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
 
         #magazine {
@@ -32,17 +39,57 @@
             background-size: cover;
             background-position: center;
         }
+
+        /* 左右ボタンのスタイル */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 5px;
+            user-select: none;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        #prev-button {
+            left: -60px;
+        }
+
+        #next-button {
+            right: -60px;
+        }
     </style>
 </head>
 <body>
 
-<div id="magazine">
-    <div class="turn-page" style="background-image:url('pages/01.jpg');"></div>
-    <div class="turn-page" style="background-image:url('pages/02.jpg');"></div>
-    <div class="turn-page" style="background-image:url('pages/03.jpg');"></div>
-    <div class="turn-page" style="background-image:url('pages/04.jpg');"></div>
-    <div class="turn-page" style="background-image:url('pages/05.jpg');"></div>
-    <div class="turn-page" style="background-image:url('pages/06.jpg');"></div>
+<div id="container">
+    <!-- 左ボタン -->
+    <div id="prev-button" class="nav-button">←</div>
+
+    <!-- 本の表示領域 -->
+    <div id="magazine">
+        <div class="turn-page" style="background-image:url('pages/01.jpg');"></div>
+        <div class="turn-page" style="background-image:url('pages/02.jpg');"></div>
+        <div class="turn-page" style="background-image:url('pages/03.jpg');"></div>
+        <div class="turn-page" style="background-image:url('pages/04.jpg');"></div>
+        <div class="turn-page" style="background-image:url('pages/05.jpg');"></div>
+        <div class="turn-page" style="background-image:url('pages/06.jpg');"></div>
+    </div>
+
+    <!-- 右ボタン -->
+    <div id="next-button" class="nav-button">→</div>
 </div>
 
 <script>
@@ -65,6 +112,15 @@
                 $('#magazine').turn('next');
                 e.preventDefault();
             }
+        });
+
+        // マウスクリックでページをめくる
+        $('#prev-button').click(function () {
+            $('#magazine').turn('previous');
+        });
+
+        $('#next-button').click(function () {
+            $('#magazine').turn('next');
         });
     });
 </script>
