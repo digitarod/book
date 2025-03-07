@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turn.js Page Flip</title>
+
+    <!-- jQuery のバージョンを最新に変更 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+
+    <style>
+        body {
+            background: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #magazine {
+            width: 800px; /* 2ページ分の幅 */
+            height: 500px;
+            position: relative;
+        }
+
+        #magazine .turn-page {
+            width: 400px; /* 1ページ分の幅 */
+            height: 500px;
+            background-color: #fff;
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="magazine">
+    <div class="turn-page" style="background-image:url('pages/01.jpg');"></div>
+    <div class="turn-page" style="background-image:url('pages/02.jpg');"></div>
+    <div class="turn-page" style="background-image:url('pages/03.jpg');"></div>
+    <div class="turn-page" style="background-image:url('pages/04.jpg');"></div>
+    <div class="turn-page" style="background-image:url('pages/05.jpg');"></div>
+    <div class="turn-page" style="background-image:url('pages/06.jpg');"></div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#magazine').turn({
+            width: 800,  // 親の width（2ページ分）
+            height: 500, // 親の height
+            autoCenter: true, // 自動で中央配置
+            display: 'double', // 両面表示
+            gradients: true,
+            acceleration: true
+        });
+
+        // キーボード操作
+        $(document).keydown(function (e) {
+            if (e.keyCode === 37) { // 左キー
+                $('#magazine').turn('previous');
+                e.preventDefault();
+            } else if (e.keyCode === 39) { // 右キー
+                $('#magazine').turn('next');
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
