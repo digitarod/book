@@ -24,7 +24,8 @@
         #title {
             font-size: 32px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         #container {
@@ -35,13 +36,13 @@
         }
 
         #magazine {
-            width: 1200px; /* ページサイズを大きく */
+            width: 1200px;
             height: 800px;
             position: relative;
         }
 
         #magazine .turn-page {
-            width: 600px; /* 1ページ分の幅 */
+            width: 600px;
             height: 800px;
             background-color: #fff;
             background-size: cover;
@@ -93,7 +94,7 @@
 </head>
 <body>
 
-<div id="title">電子書籍タイトル</div> <!-- タイトル追加 -->
+<div id="title">電子書籍タイトル</div> <!-- タイトル表示 -->
 
 <div id="container">
     <!-- 左ボタン -->
@@ -135,6 +136,9 @@
             }
         });
 
+        // 初回のページ番号更新
+        updatePageNumbers([1, 2]);
+
         // キーボード操作
         $(document).keydown(function (e) {
             if (e.keyCode === 37) { // 左キー
@@ -157,9 +161,10 @@
 
         // ページ番号を更新
         function updatePageNumbers(view) {
-            let leftPage = view[0] || 1; // 左ページ（または表紙）
-            let rightPage = view[1] || ''; // 右ページ（空白の可能性あり）
-            
+            if (!view) return;
+            let leftPage = view[0] || ''; // 左ページ（または空白）
+            let rightPage = view[1] || ''; // 右ページ（または空白）
+
             $('#left-page').text(leftPage);
             $('#right-page').text(rightPage);
         }
