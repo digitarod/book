@@ -17,7 +17,6 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            position: relative;
         }
 
         #container {
@@ -27,14 +26,14 @@
         }
 
         #magazine {
-            width: 800px; /* 2ページ分の幅 */
-            height: 500px;
+            width: 1000px; /* ページサイズを大きく */
+            height: 600px;
             position: relative;
         }
 
         #magazine .turn-page {
-            width: 400px; /* 1ページ分の幅 */
-            height: 500px;
+            width: 500px; /* 1ページ分の幅 */
+            height: 600px;
             background-color: #fff;
             background-size: cover;
             background-position: center;
@@ -45,18 +44,19 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 50px;
-            height: 80px;
+            width: 60px;
+            height: 100px;
             background: rgba(0, 0, 0, 0.5);
             color: white;
-            font-size: 24px;
+            font-size: 30px;
             font-weight: bold;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 8px;
             user-select: none;
+            z-index: 10; /* ボタンが隠れないように */
         }
 
         .nav-button:hover {
@@ -64,11 +64,11 @@
         }
 
         #prev-button {
-            left: -60px;
+            left: -80px; /* 離して表示 */
         }
 
         #next-button {
-            right: -60px;
+            right: -80px; /* 離して表示 */
         }
     </style>
 </head>
@@ -95,8 +95,8 @@
 <script>
     $(document).ready(function () {
         $('#magazine').turn({
-            width: 800,  // 親の width（2ページ分）
-            height: 500, // 親の height
+            width: 1000,  // ページサイズを拡大
+            height: 600,
             autoCenter: true, // 自動で中央配置
             display: 'double', // 両面表示
             gradients: true,
