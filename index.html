@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turn.js Page Flip</title>
+    <title>Turn.js Responsive Page Flip</title>
 
     <!-- jQuery & Turn.js -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -18,6 +18,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
 
         /* タイトル */
@@ -35,21 +36,20 @@
             align-items: center;
         }
 
+        /* 本のスタイル */
         #magazine {
-            width: 1000px; /* ページサイズを小さく */
+            width: 1000px;
             height: 700px;
             position: relative;
         }
 
         #magazine .turn-page {
-            width: 500px; /* 1ページ分の幅 */
-            height: 700px;
             background-color: #fff;
             background-size: cover;
             background-position: center;
         }
 
-        /* 左右ボタンのスタイル */
+        /* 左右ボタン */
         .nav-button {
             position: absolute;
             top: 50%;
@@ -90,6 +90,38 @@
             font-size: 16px;
             font-weight: bold;
         }
+
+        /* スマホ用のスタイル */
+        @media (max-width: 1000px) {
+            #magazine {
+                width: 90vw;
+                height: 90vh;
+            }
+
+            .turn-page {
+                width: 90vw;
+                height: 90vh;
+            }
+
+            .nav-button {
+                width: 50px;
+                height: 80px;
+                font-size: 25px;
+            }
+
+            #prev-button {
+                left: -60px;
+            }
+
+            #next-button {
+                right: -60px;
+            }
+
+            #page-numbers {
+                width: 90vw;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -122,22 +154,33 @@
 
 <script>
     $(document).ready(function () {
-        $('#magazine').turn({
-            width: 1000,  
-            height: 700,
-            autoCenter: true,
-            display: 'double',
-            gradients: true,
-            acceleration: true,
-            when: {
-                turned: function (event, page, view) {
-                    updatePageNumbers(view);
-                }
-            }
-        });
+        function updateLayout() {
+            let isMobile = window.innerWidth < 1000;
 
-        // 初回のページ番号更新
-        updatePageNumbers([1, 2]);
+            $('#magazine').turn('destroy'); // 再初期化前に破棄
+
+            $('#magazine').turn({
+                width: isMobile ? window.innerWidth * 0.9 : 1000,
+                height: isMobile ? window.innerHeight * 0.9 : 700,
+                autoCenter: true,
+                display: isMobile ? 'single' : 'double',
+                gradients: true,
+                acceleration: true,
+                when: {
+                    turned: function (event, page, view) {
+                        updatePageNumbers(view);
+                    }
+                }
+            });
+
+            updatePageNumbers($('#magazine').turn('view')); // 初回ページ番号設定
+        }
+
+        // 初回ロード時にレイアウトを設定
+        updateLayout();
+
+        // ウィンドウリサイズ時にレイアウトを再調整
+        $(window).resize(updateLayout);
 
         // キーボード操作
         $(document).keydown(function (e) {
