@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<head>
+<link rel="stylesheet" href="example.css" />
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" 
+    crossorigin="anonymous"></script> <!--jQueryをCDNから取得-->
+<script type="text/javascript" src="turn.js"></script>
+</head>
+<body>
+<div id="flipbook">
+    <div>page1</div>
+    <div>page2</div>
+    <div>page3</div>
+    <div>page4</div>
+    <div>page5</div>
+    <div>page6</div>
+</div>
+</body>
+<script type="text/javascript">
+	$("#flipbook").turn({
+	});
+</script>
+</html>
