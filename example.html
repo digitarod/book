@@ -1,24 +1,24 @@
 <!doctype html>
 <html>
 <head>
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
 
-<style type="text/css">
-body{
-	background:#ccc;
-}
-#magazine {
-    width: 1152px;
-    height: 752px;
-}
-#magazine .turn-page {
-    width: 576px; /* 2ページ分で #magazine の幅と一致するように */
-    height: 752px;
-    background-color: #ccc;
-    background-size: cover;
-}
-</style>
+    <style type="text/css">
+        body {
+            background: #ccc;
+        }
+        #magazine {
+            width: 1152px;
+            height: 752px;
+        }
+        #magazine .turn-page {
+            width: 576px;
+            height: 752px;
+            background-color: #ccc;
+            background-size: cover;
+        }
+    </style>
 </head>
 <body>
 
@@ -31,32 +31,30 @@ body{
     <div class="turn-page" style="background-image:url(pages/06.jpg);"></div>
 </div>
 
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#magazine').turn({
+            display: 'double',
+            acceleration: true,
+            gradients: true,
+            elevation: 50,
+            when: {
+                turned: function(e, page) {
+                    console.log('Current view: ', $(this).turn('view'));
+                }
+            }
+        });
+    });
 
-<script type="text/javascript">	
-	$(document).ready(function() {
-	    $('#magazine').turn({
-		display: 'double',
-		acceleration: true,
-		gradients: true, // モバイル対応のために $.isTouch を削除
-		elevation: 50,
-		when: {
-		    turned: function(e, page) {
-			console.log('Current view: ', $(this).turn('view'));
-		    }
-		}
-	    });
-	});
-	
-	$(document).keydown(function(e) {
-	    if (e.keyCode == 37) { // 左キー
-	        $('#magazine').turn('previous');
-	        e.preventDefault();
-	    } else if (e.keyCode == 39) { // 右キー
-	        $('#magazine').turn('next');
-	        e.preventDefault();
-	    }
-	});
-
+    $(document).keydown(function(e) {
+        if (e.keyCode == 37) { // 左キー
+            $('#magazine').turn('previous');
+            e.preventDefault();
+        } else if (e.keyCode == 39) { // 右キー
+            $('#magazine').turn('next');
+            e.preventDefault();
+        }
+    });
 </script>
 
 </body>
