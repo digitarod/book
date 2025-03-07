@@ -8,52 +8,53 @@
 body{
 	background:#ccc;
 }
-#magazine{
-	width:1152px;
-	height:752px;
+#magazine {
+    width: 1152px;
+    height: 752px;
 }
-#magazine .turn-page{
-	background-color:#ccc;
-	background-size:100% 100%;
+#magazine .turn-page {
+    width: 576px; /* 2ページ分で #magazine の幅と一致するように */
+    height: 752px;
+    background-color: #ccc;
+    background-size: cover;
 }
 </style>
 </head>
 <body>
 
 <div id="magazine">
-	<div style="background-image:url(https://digitarod.github.io/book/pages/01.jpg);"></div>
-	<div style="background-image:url(https://digitarod.github.io/book/pages/02.jpg);"></div>
-	<div style="background-image:url(https://digitarod.github.io/book/pages/03.jpg);"></div>
-	<div style="background-image:url(https://digitarod.github.io/book/pages/04.jpg);"></div>
-	<div style="background-image:url(https://digitarod.github.io/book/pages/05.jpg);"></div>
-	<div style="background-image:url(https://digitarod.github.io/book/pages/06.jpg);"></div>
+    <div class="turn-page" style="background-image:url(pages/01.jpg);"></div>
+    <div class="turn-page" style="background-image:url(pages/02.jpg);"></div>
+    <div class="turn-page" style="background-image:url(pages/03.jpg);"></div>
+    <div class="turn-page" style="background-image:url(pages/04.jpg);"></div>
+    <div class="turn-page" style="background-image:url(pages/05.jpg);"></div>
+    <div class="turn-page" style="background-image:url(pages/06.jpg);"></div>
 </div>
 
 
-<script type="text/javascript">
-
-	$(window).ready(function() {
-		$('#magazine').turn({
-							display: 'double',
-							acceleration: true,
-							gradients: !$.isTouch,
-							elevation:50,
-							when: {
-								turned: function(e, page) {
-									/*console.log('Current view: ', $(this).turn('view'));*/
-								}
-							}
-						});
+<script type="text/javascript">	
+	$(document).ready(function() {
+	    $('#magazine').turn({
+		display: 'double',
+		acceleration: true,
+		gradients: true, // モバイル対応のために $.isTouch を削除
+		elevation: 50,
+		when: {
+		    turned: function(e, page) {
+			console.log('Current view: ', $(this).turn('view'));
+		    }
+		}
+	    });
 	});
 	
-	
-	$(window).bind('keydown', function(e){
-		
-		if (e.keyCode==37)
-			$('#magazine').turn('previous');
-		else if (e.keyCode==39)
-			$('#magazine').turn('next');
-			
+	$(document).keydown(function(e) {
+	    if (e.keyCode == 37) { // 左キー
+	        $('#magazine').turn('previous');
+	        e.preventDefault();
+	    } else if (e.keyCode == 39) { // 右キー
+	        $('#magazine').turn('next');
+	        e.preventDefault();
+	    }
 	});
 
 </script>
