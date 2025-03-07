@@ -21,11 +21,10 @@
             overflow: hidden;
         }
 
-        /* タイトル */
         #title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: center;
         }
 
@@ -54,11 +53,11 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 70px;
-            height: 110px;
+            width: 50px;
+            height: 80px;
             background: rgba(0, 0, 0, 0.5);
             color: white;
-            font-size: 35px;
+            font-size: 25px;
             font-weight: bold;
             display: flex;
             justify-content: center;
@@ -74,11 +73,11 @@
         }
 
         #prev-button {
-            left: -90px;
+            left: -60px;
         }
 
         #next-button {
-            right: -90px;
+            right: -60px;
         }
 
         /* ページ番号 */
@@ -87,7 +86,7 @@
             justify-content: space-between;
             width: 1000px;
             margin-top: 10px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
         }
 
@@ -104,35 +103,33 @@
             }
 
             .nav-button {
-                width: 50px;
-                height: 80px;
-                font-size: 25px;
+                width: 40px;
+                height: 70px;
+                font-size: 20px;
             }
 
             #prev-button {
-                left: -60px;
+                left: -50px;
             }
 
             #next-button {
-                right: -60px;
+                right: -50px;
             }
 
             #page-numbers {
                 width: 90vw;
-                font-size: 14px;
+                font-size: 12px;
             }
         }
     </style>
 </head>
 <body>
 
-<div id="title">電子書籍タイトル</div> <!-- タイトル表示 -->
+<div id="title">電子書籍タイトル</div>
 
 <div id="container">
-    <!-- 左ボタン -->
     <div id="prev-button" class="nav-button">←</div>
 
-    <!-- 本の表示領域 -->
     <div id="magazine">
         <div class="turn-page" style="background-image:url('pages/01.jpg');"></div>
         <div class="turn-page" style="background-image:url('pages/02.jpg');"></div>
@@ -142,11 +139,9 @@
         <div class="turn-page" style="background-image:url('pages/06.jpg');"></div>
     </div>
 
-    <!-- 右ボタン -->
     <div id="next-button" class="nav-button">→</div>
 </div>
 
-<!-- ページ番号 -->
 <div id="page-numbers">
     <span id="left-page">1</span>
     <span id="right-page">2</span>
@@ -157,13 +152,17 @@
         function updateLayout() {
             let isMobile = window.innerWidth < 1000;
 
-            $('#magazine').turn('destroy'); // 再初期化前に破棄
+            console.log("isMobile:", isMobile); // デバッグ用（削除可）
 
-            $('#magazine').turn({
+            if ($("#magazine").data("turn")) {
+                $("#magazine").turn("destroy"); // 再初期化前に破棄
+            }
+
+            $("#magazine").turn({
                 width: isMobile ? window.innerWidth * 0.9 : 1000,
                 height: isMobile ? window.innerHeight * 0.9 : 700,
                 autoCenter: true,
-                display: isMobile ? 'single' : 'double',
+                display: isMobile ? "single" : "double",
                 gradients: true,
                 acceleration: true,
                 when: {
@@ -173,7 +172,7 @@
                 }
             });
 
-            updatePageNumbers($('#magazine').turn('view')); // 初回ページ番号設定
+            updatePageNumbers($("#magazine").turn("view")); // 初回ページ番号設定
         }
 
         // 初回ロード時にレイアウトを設定
@@ -184,32 +183,32 @@
 
         // キーボード操作
         $(document).keydown(function (e) {
-            if (e.keyCode === 37) { // 左キー
-                $('#magazine').turn('previous');
+            if (e.keyCode === 37) {
+                $("#magazine").turn("previous");
                 e.preventDefault();
-            } else if (e.keyCode === 39) { // 右キー
-                $('#magazine').turn('next');
+            } else if (e.keyCode === 39) {
+                $("#magazine").turn("next");
                 e.preventDefault();
             }
         });
 
         // マウスクリックでページをめくる
-        $('#prev-button').click(function () {
-            $('#magazine').turn('previous');
+        $("#prev-button").click(function () {
+            $("#magazine").turn("previous");
         });
 
-        $('#next-button').click(function () {
-            $('#magazine').turn('next');
+        $("#next-button").click(function () {
+            $("#magazine").turn("next");
         });
 
         // ページ番号を更新
         function updatePageNumbers(view) {
             if (!view) return;
-            let leftPage = view[0] || ''; // 左ページ（または空白）
-            let rightPage = view[1] || ''; // 右ページ（または空白）
+            let leftPage = view[0] || "";
+            let rightPage = view[1] || "";
 
-            $('#left-page').text(leftPage);
-            $('#right-page').text(rightPage);
+            $("#left-page").text(leftPage);
+            $("#right-page").text(rightPage);
         }
     });
 </script>
