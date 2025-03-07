@@ -13,27 +13,36 @@
         body {
             background: #ccc;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
 
+        /* タイトル */
+        #title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
         #container {
             position: relative;
             display: flex;
+            flex-direction: column;
             align-items: center;
         }
 
         #magazine {
-            width: 1000px; /* ページサイズを大きく */
-            height: 600px;
+            width: 1200px; /* ページサイズを大きく */
+            height: 800px;
             position: relative;
         }
 
         #magazine .turn-page {
-            width: 500px; /* 1ページ分の幅 */
-            height: 600px;
+            width: 600px; /* 1ページ分の幅 */
+            height: 800px;
             background-color: #fff;
             background-size: cover;
             background-position: center;
@@ -44,11 +53,11 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 60px;
-            height: 100px;
+            width: 80px;
+            height: 120px;
             background: rgba(0, 0, 0, 0.5);
             color: white;
-            font-size: 30px;
+            font-size: 40px;
             font-weight: bold;
             display: flex;
             justify-content: center;
@@ -56,7 +65,7 @@
             cursor: pointer;
             border-radius: 8px;
             user-select: none;
-            z-index: 10; /* ボタンが隠れないように */
+            z-index: 10;
         }
 
         .nav-button:hover {
@@ -64,15 +73,27 @@
         }
 
         #prev-button {
-            left: -80px; /* 離して表示 */
+            left: -100px;
         }
 
         #next-button {
-            right: -80px; /* 離して表示 */
+            right: -100px;
+        }
+
+        /* ページ番号 */
+        #page-numbers {
+            display: flex;
+            justify-content: space-between;
+            width: 1200px;
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+
+<div id="title">電子書籍タイトル</div> <!-- タイトル追加 -->
 
 <div id="container">
     <!-- 左ボタン -->
@@ -92,15 +113,26 @@
     <div id="next-button" class="nav-button">→</div>
 </div>
 
+<!-- ページ番号 -->
+<div id="page-numbers">
+    <span id="left-page">1</span>
+    <span id="right-page">2</span>
+</div>
+
 <script>
     $(document).ready(function () {
         $('#magazine').turn({
-            width: 1000,  // ページサイズを拡大
-            height: 600,
-            autoCenter: true, // 自動で中央配置
-            display: 'double', // 両面表示
+            width: 1200,  
+            height: 800,
+            autoCenter: true,
+            display: 'double',
             gradients: true,
-            acceleration: true
+            acceleration: true,
+            when: {
+                turned: function (event, page, view) {
+                    updatePageNumbers(view);
+                }
+            }
         });
 
         // キーボード操作
@@ -122,6 +154,15 @@
         $('#next-button').click(function () {
             $('#magazine').turn('next');
         });
+
+        // ページ番号を更新
+        function updatePageNumbers(view) {
+            let leftPage = view[0] || 1; // 左ページ（または表紙）
+            let rightPage = view[1] || ''; // 右ページ（空白の可能性あり）
+            
+            $('#left-page').text(leftPage);
+            $('#right-page').text(rightPage);
+        }
     });
 </script>
 
