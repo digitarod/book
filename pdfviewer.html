@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFビューア</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+    <style>
+        body {
+            background: #ccc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #pdf-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            border: 1px solid #000;
+            background: white;
+            max-width: 100%;
+        }
+
+        /* ナビゲーションボタン */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 8px;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        #prev-button {
+            left: -70px;
+        }
+
+        #next-button {
+            right: -70px;
+        }
+
+        /* ページ番号 */
+        #page-info {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* レビュー用ボタン */
+        #review-container {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .review-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .review-button:hover {
+            background: #0056b3;
+        }
+
+        /* スマホ用のスタイル */
+        @media (max-width: 900px) {
+            canvas {
+                width: 90vw !important;
+            }
+
+            .nav-button {
+                width: 40px;
+                height: 70px;
+                font-size: 20px;
+            }
+
+            #prev-button {
+                left: -50px;
+            }
+
+            #next-button {
+                right: -50px;
+            }
+
+            #page-info {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="title">PDFビューア</div>
+
+<div id="pdf-container">
+    <div id="prev-button" class="nav-button">←</div>
+
+    <canvas id="pdf-canvas"></canvas>
+
+    <div id="next-button" class="nav-button">→</div>
+</div>
+
+<div id="page-info">ページ <span id="current-page">1</span> / <span id="total-pages">1</span></div>
+
+<!-- 最終ページのレビュー表示 -->
+<div id="review-container">
+    <p>商品の感想を教えてください！</p>
+    <button class="review-button" onclick="window.location.href='https://example.com/review'">感想を書く</button>
+</div>
+
+<script>
+    let pdfDoc = null;
+    let currentPage = 1;
+    let totalPages = 1;
+    let scale = 1.2; // 拡大率
+    const canvas = document.getElementById('pdf-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // PDFを読み込む
+    async function loadPDF(url) {
+        pdfDoc = await pdfjsLib.getDocument(url).promise;
+        totalPages = pdfDoc.numPages;
+        document.getElementById('total-pages').textContent = totalPages;
+        renderPage(currentPage);
+    }
+
+    // 指定ページを描画
+    async function renderPage(pageNumber) {
+        const page = await pdfDoc.getPage(pageNumber);
+        const viewport = page.getViewport({ scale });
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const renderContext = { canvasContext: ctx, viewport };
+        await page.render(renderContext).promise;
+
+        document.getElementById('current-page').textContent = pageNumber;
+
+        // 最終ページでレビュー表示
+        if (pageNumber === totalPages) {
+            document.getElementById('review-container').style.display = 'flex';
+        } else {
+            document.getElementById('review-container').style.display = 'none';
+        }
+    }
+
+    // 前のページ
+    function prevPage() {
+        if (currentPage <= 1) return;
+        currentPage--;
+        renderPage(currentPage);
+    }
+
+    // 次のページ
+    function nextPage() {
+        if (currentPage >= totalPages) return;
+        currentPage++;
+        renderPage(currentPage);
+    }
+
+    // イベントリスナー
+    document.getElementById('prev-button').addEventListener('click', prevPage);
+    document.getElementById('next-button').addEventListener('click', nextPage);
+
+    // キーボード操作
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') prevPage();
+        if (e.key === 'ArrowRight') nextPage();
+    });
+
+    // PDF読み込み（ここにPDFのURLを指定）
+    loadPDF('sample.pdf'); // ← ここを変更（PDFのURLを指定）
+</script>
+
+</body>
+</html>
