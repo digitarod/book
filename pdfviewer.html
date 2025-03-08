@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDFビューア</title>
+    <title>PDFページめくり</title>
 
+    <!-- jQuery & turn.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
+
+    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
     <style>
@@ -12,8 +17,8 @@
             background: #ccc;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
@@ -26,20 +31,17 @@
             text-align: center;
         }
 
-        #pdf-container {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        #magazine {
+            width: 1000px;
+            height: 700px;
         }
 
-        canvas {
-            border: 1px solid #000;
-            background: white;
-            max-width: 100%;
+        #magazine .turn-page {
+            background-color: white;
+            background-size: cover;
         }
 
-        /* ナビゲーションボタン */
+        /* ボタン */
         .nav-button {
             position: absolute;
             top: 50%;
@@ -71,44 +73,11 @@
             right: -70px;
         }
 
-        /* ページ番号 */
-        #page-info {
-            margin-top: 10px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        /* レビュー用ボタン */
-        #review-container {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: #f8f8f8;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .review-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 18px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .review-button:hover {
-            background: #0056b3;
-        }
-
         /* スマホ用のスタイル */
         @media (max-width: 900px) {
-            canvas {
+            #magazine {
                 width: 90vw !important;
+                height: auto;
             }
 
             .nav-button {
@@ -124,95 +93,114 @@
             #next-button {
                 right: -50px;
             }
-
-            #page-info {
-                font-size: 14px;
-            }
         }
     </style>
 </head>
 <body>
 
-<div id="title">PDFビューア</div>
+<div id="title">PDFページめくり</div>
 
-<div id="pdf-container">
-    <div id="prev-button" class="nav-button">←</div>
+<div id="prev-button" class="nav-button">←</div>
 
-    <canvas id="pdf-canvas"></canvas>
+<div id="magazine"></div>
 
-    <div id="next-button" class="nav-button">→</div>
-</div>
-
-<div id="page-info">ページ <span id="current-page">1</span> / <span id="total-pages">1</span></div>
-
-<!-- 最終ページのレビュー表示 -->
-<div id="review-container">
-    <p>商品の感想を教えてください！</p>
-    <button class="review-button" onclick="window.location.href='https://example.com/review'">感想を書く</button>
-</div>
+<div id="next-button" class="nav-button">→</div>
 
 <script>
     let pdfDoc = null;
-    let currentPage = 1;
-    let totalPages = 1;
-    let scale = 1.2; // 拡大率
-    const canvas = document.getElementById('pdf-canvas');
-    const ctx = canvas.getContext('2d');
+    let totalPages = 0;
+    let pages = [];
+    const scale = 2;  // 高解像度でレンダリング
 
-    // PDFを読み込む
+    // PDFをロード
     async function loadPDF(url) {
         pdfDoc = await pdfjsLib.getDocument(url).promise;
         totalPages = pdfDoc.numPages;
-        document.getElementById('total-pages').textContent = totalPages;
-        renderPage(currentPage);
+        
+        // 全ページを画像化して配列に格納
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(await renderPage(i));
+        }
+
+        createFlipbook();
     }
 
-    // 指定ページを描画
+    // PDFページをCanvasに描画し、画像として取得
     async function renderPage(pageNumber) {
         const page = await pdfDoc.getPage(pageNumber);
         const viewport = page.getViewport({ scale });
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
-        const renderContext = { canvasContext: ctx, viewport };
-        await page.render(renderContext).promise;
-
-        document.getElementById('current-page').textContent = pageNumber;
-
-        // 最終ページでレビュー表示
-        if (pageNumber === totalPages) {
-            document.getElementById('review-container').style.display = 'flex';
-        } else {
-            document.getElementById('review-container').style.display = 'none';
-        }
+        await page.render({ canvasContext: context, viewport }).promise;
+        return canvas.toDataURL("image/png");
     }
 
-    // 前のページ
-    function prevPage() {
-        if (currentPage <= 1) return;
-        currentPage--;
-        renderPage(currentPage);
+    // turn.jsでページめくり実装
+    function createFlipbook() {
+        const magazine = $("#magazine");
+        magazine.empty();  // 既存の内容をクリア
+
+        pages.forEach((imgSrc, index) => {
+            const pageDiv = $("<div></div>").css({
+                "background-image": `url(${imgSrc})`,
+                "width": "100%",
+                "height": "100%",
+                "background-size": "cover"
+            });
+
+            magazine.append(pageDiv);
+        });
+
+        // 最終ページに「商品の感想を教えてください」
+        const reviewPage = $("<div></div>").css({
+            "display": "flex",
+            "flex-direction": "column",
+            "justify-content": "center",
+            "align-items": "center",
+            "background": "#fff",
+            "width": "100%",
+            "height": "100%"
+        }).html(`
+            <p style="font-size: 18px;">商品の感想を教えてください！</p>
+            <button onclick="window.location.href='https://example.com/review'"
+                    style="padding: 10px 20px; font-size: 18px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                感想を書く
+            </button>
+        `);
+        magazine.append(reviewPage);
+
+        // turn.jsの設定
+        magazine.turn({
+            width: 1000,
+            height: 700,
+            autoCenter: true,
+            display: window.innerWidth > 900 ? "double" : "single" // PCは見開き、スマホは1ページ
+        });
+
+        // 画面サイズ変更時に調整
+        $(window).resize(() => {
+            magazine.turn("display", window.innerWidth > 900 ? "double" : "single");
+        });
     }
 
-    // 次のページ
-    function nextPage() {
-        if (currentPage >= totalPages) return;
-        currentPage++;
-        renderPage(currentPage);
-    }
-
-    // イベントリスナー
-    document.getElementById('prev-button').addEventListener('click', prevPage);
-    document.getElementById('next-button').addEventListener('click', nextPage);
+    // ナビゲーション
+    $("#prev-button").click(() => $("#magazine").turn("previous"));
+    $("#next-button").click(() => $("#magazine").turn("next"));
 
     // キーボード操作
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') prevPage();
-        if (e.key === 'ArrowRight') nextPage();
+    $(document).keydown((e) => {
+        if (e.key === "ArrowLeft") $("#magazine").turn("previous");
+        if (e.key === "ArrowRight") $("#magazine").turn("next");
     });
 
-    // PDF読み込み（ここにPDFのURLを指定）
-    loadPDF('pdf/document.pdf'); // ← ここを変更（PDFのURLを指定）
+    // PDFを読み込む（URLを指定）
+    loadPDF("pdf/document.pdf"); // ★ここを実際のPDFのURLに変更！
+
 </script>
 
 </body>
