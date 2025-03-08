@@ -50,13 +50,15 @@
             font-weight: bold;
         }
 
-        /* 最終ページのスタイル */
+        /* 最終ページ（商品の感想） */
         .review-page {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            text-align: center;
             background: #f8f8f8;
+            padding: 20px;
         }
 
         .review-button {
@@ -99,11 +101,11 @@
         }
 
         #prev-button {
-            left: -60px;
+            left: -70px;
         }
 
         #next-button {
-            right: -60px;
+            right: -70px;
         }
 
         /* ページ番号 */
@@ -111,22 +113,22 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            max-width: 1000px;
+            max-width: 900px;
             margin-top: 10px;
             font-size: 14px;
             font-weight: bold;
         }
 
         /* スマホ用のスタイル */
-        @media (max-width: 1000px) {
+        @media (max-width: 900px) {
             #magazine {
-                width: 90vw;
-                height: 90vh;
+                width: 80vw;
+                height: 80vh;
             }
 
             .turn-page {
-                width: 90vw;
-                height: 90vh;
+                width: 80vw;
+                height: 80vh;
             }
 
             .nav-button {
@@ -144,7 +146,7 @@
             }
 
             #page-numbers {
-                width: 90vw;
+                width: 80vw;
                 font-size: 12px;
             }
         }
@@ -168,7 +170,7 @@
         <!-- 最終ページ -->
         <div class="turn-page review-page">
             <p>商品の感想を教えてください！</p>
-            <button class="review-button" onclick="window.location.href='https://example.com/review'">感想を書く</button>
+            <button class="review-button" onclick="window.location.href='https://digitarod.github.io/book/survey.html'">感想を書く</button>
         </div>
     </div>
 
@@ -183,29 +185,17 @@
 <script>
     $(document).ready(function () {
         function updateLayout() {
-            let isMobile = window.innerWidth < 1000;
+            let isMobile = window.innerWidth < 900;
 
             console.log("isMobile:", isMobile); // デバッグ用
 
             if ($("#magazine").data("turn")) {
                 $("#magazine").turn("destroy"); // 再初期化前に破棄
-                $("#magazine").html(`
-                    <div class="turn-page" style="background-image:url('pages/01.jpg');"></div>
-                    <div class="turn-page" style="background-image:url('pages/02.jpg');"></div>
-                    <div class="turn-page" style="background-image:url('pages/03.jpg');"></div>
-                    <div class="turn-page" style="background-image:url('pages/04.jpg');"></div>
-                    <div class="turn-page" style="background-image:url('pages/05.jpg');"></div>
-                    <div class="turn-page" style="background-image:url('pages/06.jpg');"></div>
-                    <div class="turn-page review-page">
-                        <p>商品の感想を教えてください！</p>
-                        <button class="review-button" onclick="window.location.href='https://digitarod.github.io/book/survey.html'">感想を書く</button>
-                    </div>
-                `);
             }
 
             $("#magazine").turn({
-                width: isMobile ? window.innerWidth * 0.9 : 1000,
-                height: isMobile ? window.innerHeight * 0.9 : 700,
+                width: isMobile ? window.innerWidth * 0.8 : 900,
+                height: isMobile ? window.innerHeight * 0.8 : 700,
                 autoCenter: true,
                 display: isMobile ? "single" : "double",
                 gradients: true,
