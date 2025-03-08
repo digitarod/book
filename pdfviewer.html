@@ -1,31 +1,198 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>PDF Viewer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFページめくり</title>
+
+    <!-- jQuery & turn.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+    <style>
+        body {
+            background: #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #magazine {
+            width: 1000px;
+            height: 700px;
+        }
+
+        #magazine .turn-page {
+            background-color: white;
+            background-size: cover;
+        }
+
+        /* ナビゲーションボタン */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 8px;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        #prev-button { left: -70px; }
+        #next-button { right: -70px; }
+
+        /* スマホ用 */
+        @media (max-width: 900px) {
+            #magazine {
+                width: 90vw !important;
+                height: auto;
+            }
+
+            .nav-button {
+                width: 40px;
+                height: 70px;
+                font-size: 20px;
+            }
+
+            #prev-button { left: -50px; }
+            #next-button { right: -50px; }
+        }
+    </style>
 </head>
 <body>
-  <canvas id="pdf-canvas"></canvas>
-  <script>
-    const url = 'pdf/document.pdf';
 
-    pdfjsLib.getDocument(url).promise.then(function(pdfDoc) {
-      pdfDoc.getPage(1).then(function(page) {
-        const canvas = document.getElementById('pdf-canvas');
-        const context = canvas.getContext('2d');
-        const viewport = page.getViewport({ scale: 1 });
+<div id="title">PDFページめくり</div>
 
-        canvas.height = viewport.height;
+<div id="prev-button" class="nav-button">←</div>
+
+<div id="magazine"></div>
+
+<div id="next-button" class="nav-button">→</div>
+
+<script>
+    let pdfDoc = null;
+    let totalPages = 0;
+    let pages = [];
+    const scale = 2;  // 高解像度でレンダリング
+
+    // PDFをロード
+    async function loadPDF(url) {
+        pdfDoc = await pdfjsLib.getDocument(url).promise;
+        totalPages = pdfDoc.numPages;
+        
+        // 全ページを画像化して配列に格納
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(await renderPage(i));
+        }
+
+        createFlipbook();
+    }
+
+    // PDFページをCanvasに描画し、画像として取得
+    async function renderPage(pageNumber) {
+        const page = await pdfDoc.getPage(pageNumber);
+        const viewport = page.getViewport({ scale });
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
         canvas.width = viewport.width;
+        canvas.height = viewport.height;
 
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport
-        };
-        page.render(renderContext);
-      });
+        await page.render({ canvasContext: context, viewport }).promise;
+        return canvas.toDataURL("image/png");
+    }
+
+    // turn.jsでページめくり実装
+    function createFlipbook() {
+        const magazine = $("#magazine");
+        magazine.empty();  // 既存の内容をクリア
+
+        // ページを追加
+        for (let i = 0; i < pages.length; i++) {
+            const pageDiv = $("<div></div>").css({
+                "background-image": `url(${pages[i]})`,
+                "width": "100%",
+                "height": "100%",
+                "background-size": "cover"
+            });
+            magazine.append(pageDiv);
+        }
+
+        // 最終ページに「商品の感想を教えてください」
+        const reviewPage = $("<div></div>").css({
+            "display": "flex",
+            "flex-direction": "column",
+            "justify-content": "center",
+            "align-items": "center",
+            "background": "#fff",
+            "width": "100%",
+            "height": "100%"
+        }).html(`
+            <p style="font-size: 18px;">商品の感想を教えてください！</p>
+            <button onclick="window.location.href='https://example.com/review'"
+                    style="padding: 10px 20px; font-size: 18px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                感想を書く
+            </button>
+        `);
+        magazine.append(reviewPage);
+
+        // turn.jsの設定（PCは見開き、スマホは1ページ）
+        magazine.turn({
+            width: 1000,
+            height: 700,
+            autoCenter: true,
+            display: window.innerWidth > 900 ? "double" : "single",
+            pages: pages.length
+        });
+
+        // 画面サイズ変更時に調整
+        $(window).resize(() => {
+            magazine.turn("display", window.innerWidth > 900 ? "double" : "single");
+        });
+    }
+
+    // ナビゲーション
+    $("#prev-button").click(() => $("#magazine").turn("previous"));
+    $("#next-button").click(() => $("#magazine").turn("next"));
+
+    // キーボード操作
+    $(document).keydown((e) => {
+        if (e.key === "ArrowLeft") $("#magazine").turn("previous");
+        if (e.key === "ArrowRight") $("#magazine").turn("next");
     });
-  </script>
+
+    // PDFを読み込む（URLを指定）
+    loadPDF("pdf/document.pdf"); // ★ここを実際のPDFのURLに変更！
+
+</script>
+
 </body>
 </html>
