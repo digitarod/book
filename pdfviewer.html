@@ -1,50 +1,10 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Page Flip</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/stpageflip@latest/dist/pageflip.browser.min.js"></script>
-    <style>
-        body { text-align: center; }
-        #flipbook { width: 800px; height: 600px; margin: auto; }
-        canvas { width: 100%; height: 100%; }
-    </style>
+  <meta charset="UTF-8">
+  <title>PDF Viewer</title>
 </head>
 <body>
-    <div id="flipbook"></div>
-    <script>
-        const pdfPath = "pdf/document.pdf";
-        
-        async function loadPDF() {
-            const pdf = await pdfjsLib.getDocument(pdfPath).promise;
-            const flipbook = document.getElementById("flipbook");
-            const pageImages = [];
-
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const canvas = document.createElement("canvas");
-                const context = canvas.getContext("2d");
-                const viewport = page.getViewport({ scale: 2.0 });
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                await page.render({ canvasContext: context, viewport: viewport }).promise;
-                pageImages.push(canvas.toDataURL("image/png"));
-            }
-
-            const pageFlip = new St.PageFlip(flipbook, {
-                width: 400,
-                height: 600,
-                maxShadowOpacity: 0.5,
-                showCover: true,
-                mobileScrollSupport: false,
-            });
-
-            pageFlip.loadFromImages(pageImages);
-        }
-
-        loadPDF();
-    </script>
+  <iframe src="path/to/pdf.js/web/viewer.html?file=pdf/document.pdf" width="800" height="600"></iframe>
 </body>
 </html>
