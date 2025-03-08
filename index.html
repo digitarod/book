@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turn.js Responsive Page Flip</title>
+    <title>電子書籍</title>
 
     <!-- jQuery & Turn.js -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -35,7 +35,6 @@
             align-items: center;
         }
 
-        /* 本のスタイル */
         #magazine {
             position: relative;
         }
@@ -44,9 +43,38 @@
             background-color: #fff;
             background-size: cover;
             background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
         }
 
-        /* 左右ボタン */
+        /* 最終ページのスタイル */
+        .review-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #f8f8f8;
+        }
+
+        .review-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .review-button:hover {
+            background: #0056b3;
+        }
+
+        /* ナビゲーションボタン */
         .nav-button {
             position: absolute;
             top: 50%;
@@ -124,7 +152,7 @@
 </head>
 <body>
 
-<div id="title">電子書籍タイトル</div>
+<div id="title">電子書籍</div>
 
 <div id="container">
     <div id="prev-button" class="nav-button">←</div>
@@ -136,6 +164,12 @@
         <div class="turn-page" style="background-image:url('pages/04.jpg');"></div>
         <div class="turn-page" style="background-image:url('pages/05.jpg');"></div>
         <div class="turn-page" style="background-image:url('pages/06.jpg');"></div>
+
+        <!-- 最終ページ -->
+        <div class="turn-page review-page">
+            <p>商品の感想を教えてください！</p>
+            <button class="review-button" onclick="window.location.href='https://example.com/review'">感想を書く</button>
+        </div>
     </div>
 
     <div id="next-button" class="nav-button">→</div>
@@ -162,6 +196,10 @@
                     <div class="turn-page" style="background-image:url('pages/04.jpg');"></div>
                     <div class="turn-page" style="background-image:url('pages/05.jpg');"></div>
                     <div class="turn-page" style="background-image:url('pages/06.jpg');"></div>
+                    <div class="turn-page review-page">
+                        <p>商品の感想を教えてください！</p>
+                        <button class="review-button" onclick="window.location.href='https://digitarod.github.io/book/survey.html'">感想を書く</button>
+                    </div>
                 `);
             }
 
@@ -179,43 +217,24 @@
                 }
             });
 
-            updatePageNumbers($("#magazine").turn("view")); // 初回ページ番号設定
+            updatePageNumbers($("#magazine").turn("view"));
         }
 
-        // 初回ロード時にレイアウトを設定
         updateLayout();
-
-        // ウィンドウリサイズ時にレイアウトを再調整
         $(window).resize(updateLayout);
 
-        // キーボード操作
         $(document).keydown(function (e) {
-            if (e.keyCode === 37) {
-                $("#magazine").turn("previous");
-                e.preventDefault();
-            } else if (e.keyCode === 39) {
-                $("#magazine").turn("next");
-                e.preventDefault();
-            }
+            if (e.keyCode === 37) $("#magazine").turn("previous");
+            else if (e.keyCode === 39) $("#magazine").turn("next");
         });
 
-        // マウスクリックでページをめくる
-        $("#prev-button").click(function () {
-            $("#magazine").turn("previous");
-        });
+        $("#prev-button").click(function () { $("#magazine").turn("previous"); });
+        $("#next-button").click(function () { $("#magazine").turn("next"); });
 
-        $("#next-button").click(function () {
-            $("#magazine").turn("next");
-        });
-
-        // ページ番号を更新
         function updatePageNumbers(view) {
             if (!view) return;
-            let leftPage = view[0] || "";
-            let rightPage = view[1] || "";
-
-            $("#left-page").text(leftPage);
-            $("#right-page").text(rightPage);
+            $("#left-page").text(view[0] || "");
+            $("#right-page").text(view[1] || "");
         }
     });
 </script>
