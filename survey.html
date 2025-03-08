@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アンケートページ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .hidden {
+            display: none;
+        }
+        textarea {
+            width: 80%;
+            height: 100px;
+            margin-top: 10px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+        .positive {
+            background-color: green;
+            color: white;
+        }
+        .negative {
+            background-color: red;
+            color: white;
+        }
+        .submit {
+            background-color: blue;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>今回の漫画は良かったでしょうか？</h1>
+    <button class="positive" onclick="handlePositiveFeedback()">よかった</button>
+    <button class="negative" onclick="handleNegativeFeedback()">よくなかった</button>
+    <div id="feedback-section" class="hidden">
+        <textarea id="feedback" placeholder="感想をお聞かせください"></textarea>
+        <br>
+        <button class="submit" onclick="handleSubmit()">送信</button>
+    </div>
+    
+    <script>
+        function handlePositiveFeedback() {
+            window.location.href = "https://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first";
+        }
+
+        function handleNegativeFeedback() {
+            document.getElementById("feedback-section").classList.remove("hidden");
+        }
+
+        function handleSubmit() {
+            alert("ご意見を送信しました。ありがとうございます！");
+            document.getElementById("feedback").value = "";
+            document.getElementById("feedback-section").classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
