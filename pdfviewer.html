@@ -11,16 +11,23 @@
         <div id="flipbook"></div>
     </div>
 
+    <!-- jQueryを最初に読み込む -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <!-- DearFlipのライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/dearflip@1.1.2/dist/dflip.min.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var flipbook = new DFLIP.Book("#flipbook", {
+        window.onload = function () {
+            if (typeof DFLIP === "undefined") {
+                console.error("DearFlip (DFLIP) is not loaded properly!");
+                return;
+            }
+            
+            new DFLIP.Book("#flipbook", {
                 source: "pdf/document.pdf",
                 webgl: true
             });
-        });
+        };
     </script>
 </body>
 </html>
