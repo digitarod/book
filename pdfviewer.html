@@ -41,7 +41,7 @@
             background-size: cover;
         }
 
-        /* ボタン */
+        /* ナビゲーションボタン */
         .nav-button {
             position: absolute;
             top: 50%;
@@ -65,15 +65,10 @@
             background: rgba(0, 0, 0, 0.7);
         }
 
-        #prev-button {
-            left: -70px;
-        }
+        #prev-button { left: -70px; }
+        #next-button { right: -70px; }
 
-        #next-button {
-            right: -70px;
-        }
-
-        /* スマホ用のスタイル */
+        /* スマホ用 */
         @media (max-width: 900px) {
             #magazine {
                 width: 90vw !important;
@@ -86,13 +81,8 @@
                 font-size: 20px;
             }
 
-            #prev-button {
-                left: -50px;
-            }
-
-            #next-button {
-                right: -50px;
-            }
+            #prev-button { left: -50px; }
+            #next-button { right: -50px; }
         }
     </style>
 </head>
@@ -145,16 +135,16 @@
         const magazine = $("#magazine");
         magazine.empty();  // 既存の内容をクリア
 
-        pages.forEach((imgSrc, index) => {
+        // ページを追加
+        for (let i = 0; i < pages.length; i++) {
             const pageDiv = $("<div></div>").css({
-                "background-image": `url(${imgSrc})`,
+                "background-image": `url(${pages[i]})`,
                 "width": "100%",
                 "height": "100%",
                 "background-size": "cover"
             });
-
             magazine.append(pageDiv);
-        });
+        }
 
         // 最終ページに「商品の感想を教えてください」
         const reviewPage = $("<div></div>").css({
@@ -174,12 +164,13 @@
         `);
         magazine.append(reviewPage);
 
-        // turn.jsの設定
+        // turn.jsの設定（PCは見開き、スマホは1ページ）
         magazine.turn({
             width: 1000,
             height: 700,
             autoCenter: true,
-            display: window.innerWidth > 900 ? "double" : "single" // PCは見開き、スマホは1ページ
+            display: window.innerWidth > 900 ? "double" : "single",
+            pages: pages.length
         });
 
         // 画面サイズ変更時に調整
@@ -199,7 +190,7 @@
     });
 
     // PDFを読み込む（URLを指定）
-    loadPDF("doc.pdf"); // ★ここを実際のPDFのURLに変更！
+    loadPDF("sample.pdf"); // ★ここを実際のPDFのURLに変更！
 
 </script>
 
