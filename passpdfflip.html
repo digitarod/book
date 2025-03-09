@@ -92,9 +92,11 @@
     let pdfDoc = null;
     let pagesArray = [];
     
+    const password = prompt("PDFのパスワードを入力してください:", "");
+    
     pdfjsLib.getDocument({
         url: pdfUrl,
-        password: prompt("PDFのパスワードを入力してください:")
+        password: password
     }).promise.then(pdf => {
         pdfDoc = pdf;
 
