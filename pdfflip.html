@@ -40,6 +40,7 @@
             position: relative;
             width: 900px;
             height: 600px;
+            display: none; /* 最初は非表示 */
         }
 
         .turn-page {
@@ -97,10 +98,10 @@
 <script>
     const pdfUrl = 'pdf/doc.pdf';  // PDFのパス
     let pdfDoc = null;
+    let pagesArray = []; // 画像を格納する配列
 
     pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
         pdfDoc = pdf;
-        const magazine = document.getElementById("magazine");
 
         function renderPage(num) {
             return new Promise((resolve, reject) => {
@@ -119,10 +120,11 @@
                     };
 
                     page.render(renderContext).promise.then(() => {
-                        const img = document.createElement("div");
-                        img.className = "turn-page";
-                        img.style.backgroundImage = `url(${canvas.toDataURL("image/jpeg")})`;
-                        resolve(img);
+                        const imgDiv = document.createElement("div");
+                        imgDiv.className = "turn-page";
+                        imgDiv.style.backgroundImage = `url(${canvas.toDataURL("image/jpeg")})`;
+                        pagesArray.push(imgDiv);
+                        resolve();
                     }).catch(reject);
                 }).catch(reject);
             });
@@ -130,9 +132,12 @@
 
         async function loadPages() {
             for (let i = 1; i <= pdfDoc.numPages; i++) {
-                const page = await renderPage(i);
-                magazine.appendChild(page);
+                await renderPage(i);
             }
+
+            // 画像を一気に `#magazine` に追加 (最初に表示しないため)
+            const magazine = document.getElementById("magazine");
+            pagesArray.forEach(page => magazine.appendChild(page));
 
             $("#magazine").turn({
                 width: 900,
@@ -140,6 +145,8 @@
                 autoCenter: true,
                 display: "double"
             });
+
+            $("#magazine").fadeIn(); // ページめくり準備ができたら表示
         }
 
         loadPages();
