@@ -3,41 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF.jsでPDF表示</title>
+    <title>PDF.jsでPDFを表示</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
         canvas {
             border: 1px solid black;
-            display: block;
             margin: 10px auto;
-            max-width: 100%;
+            max-width: 90%;
+            height: auto;
+        }
+        .controls {
+            margin: 10px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1 style="text-align: center;">PDF.jsでPDFを表示</h1>
+    <h1>PDF.jsでPDFを表示</h1>
+    <div class="controls">
+        <button onclick="prevPage()">← 前のページ</button>
+        <span id="page-num"></span> / <span id="page-count"></span>
+        <button onclick="nextPage()">次のページ →</button>
+    </div>
     <canvas id="pdf-canvas"></canvas>
 
     <script>
         const url = 'pdf/doc.pdf'; // PDFファイルのパス
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+
+        function renderPage(num) {
+            pageRendering = true;
+            pdfDoc.getPage(num).then(page => {
+                const scale = 1.2;
+                const viewport = page.getViewport({ scale });
+
+                const canvas = document.getElementById('pdf-canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+
+                page.render(renderContext).promise.then(() => {
+                    pageRendering = false;
+                    document.getElementById('page-num').textContent = num;
+                });
+            });
+        }
+
+        function nextPage() {
+            if (pageNum < pdfDoc.numPages && !pageRendering) {
+                pageNum++;
+                renderPage(pageNum);
+            }
+        }
+
+        function prevPage() {
+            if (pageNum > 1 && !pageRendering) {
+                pageNum--;
+                renderPage(pageNum);
+            }
+        }
 
         pdfjsLib.getDocument(url).promise.then(pdf => {
-            return pdf.getPage(1);
-        }).then(page => {
-            const scale = 1.5;
-            const viewport = page.getViewport({ scale });
-
-            const canvas = document.getElementById('pdf-canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-
-            const renderContext = {
-                canvasContext: context,
-                viewport: viewport
-            };
-
-            return page.render(renderContext).promise;
+            pdfDoc = pdf;
+            document.getElementById('page-count').textContent = pdf.numPages;
+            renderPage(pageNum);
         }).catch(error => {
             console.error("PDFの読み込みに失敗しました:", error);
         });
