@@ -60,7 +60,7 @@
             color: white;
             font-size: 25px;
             font-weight: bold;
-            display: flex;
+            display: none; /* 最初は非表示 */
             justify-content: center;
             align-items: center;
             cursor: pointer;
@@ -76,12 +76,28 @@
         #prev-button { left: -70px; }
         #next-button { right: -70px; }
 
+        /* スマホ用のスタイル */
         @media (max-width: 900px) {
-            #magazine { width: 80vw; height: 80vh; }
-            .turn-page { width: 80vw; height: 80vh; }
-            .nav-button { width: 40px; height: 70px; font-size: 20px; }
-            #prev-button { left: -50px; }
-            #next-button { right: -50px; }
+            #magazine {
+                width: 80vw;
+                height: 90vh;
+            }
+            .turn-page {
+                width: 80vw;
+                height: 90vh;
+            }
+            .nav-button {
+                width: 40px;
+                height: 70px;
+                font-size: 20px;
+                display: none; /* 最初は非表示 */
+            }
+            #prev-button {
+                left: -50px;
+            }
+            #next-button {
+                right: -50px;
+            }
         }
     </style>
 </head>
@@ -96,7 +112,7 @@
 </div>
 
 <script>
-    const pdfUrl = 'pdf/docpass.pdf';  // PDFのパス
+    const pdfUrl = 'pdf/doc.pdf';  // PDFのパス
     let pdfDoc = null;
     let pagesArray = []; // 画像を格納する配列
 
@@ -135,18 +151,32 @@
                 await renderPage(i);
             }
 
-            // 画像を一気に `#magazine` に追加 (最初に表示しないため)
             const magazine = document.getElementById("magazine");
             pagesArray.forEach(page => magazine.appendChild(page));
 
-            $("#magazine").turn({
-                width: 900,
-                height: 600,
-                autoCenter: true,
-                display: "double"
-            });
+            function updateLayout() {
+                let isMobile = window.innerWidth < 900;
+                let magazineWidth = isMobile ? window.innerWidth * 0.8 : 900;
+                let magazineHeight = isMobile ? window.innerHeight * 0.9 : 600;
 
-            $("#magazine").fadeIn(); // ページめくり準備ができたら表示
+                if ($("#magazine").data("turn")) {
+                    $("#magazine").turn("destroy"); // 既存の `turn.js` を破棄
+                }
+
+                $("#magazine").turn({
+                    width: magazineWidth,
+                    height: magazineHeight,
+                    autoCenter: true,
+                    display: isMobile ? "single" : "double"
+                });
+
+                $("#prev-button, #next-button").css("display", "flex"); // ボタンを表示
+            }
+
+            updateLayout();
+            $(window).resize(updateLayout);
+
+            $("#magazine").fadeIn();
         }
 
         loadPages();
