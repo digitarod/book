@@ -3,106 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF.js + Turn.js でページめくり</title>
+    <title>PDFページめくり</title>
+
+    <!-- PDF.js & jQuery & Turn.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4/turn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+
     <style>
         body {
-            text-align: center;
-            font-family: Arial, sans-serif;
-            background-color: #ddd;
-        }
-        .controls {
-            margin: 10px;
-        }
-        button {
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        #flipbook {
-            width: 900px;  /* 見開きサイズ */
-            height: 600px;
-            margin: auto;
-            background-color: white;
-        }
-        .page {
-            width: 450px; /* 片ページのサイズ */
-            height: 600px;
-            background: white;
+            background: #ccc;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
-        canvas {
-            width: 100%;
-            height: 100%;
+
+        #title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #magazine {
+            position: relative;
+            width: 900px;
+            height: 600px;
+        }
+
+        .turn-page {
+            width: 450px;
+            height: 600px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 8px;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        #prev-button { left: -70px; }
+        #next-button { right: -70px; }
+
+        @media (max-width: 900px) {
+            #magazine { width: 80vw; height: 80vh; }
+            .turn-page { width: 80vw; height: 80vh; }
+            .nav-button { width: 40px; height: 70px; font-size: 20px; }
+            #prev-button { left: -50px; }
+            #next-button { right: -50px; }
         }
     </style>
 </head>
 <body>
-    <h1>PDF.js + Turn.js</h1>
-    <div class="controls">
-        <button onclick="prevPage()">← 前のページ</button>
-        <button onclick="nextPage()">次のページ →</button>
-    </div>
-    <div id="flipbook"></div>
 
-    <script>
-        const url = 'pdf/doc.pdf'; // PDFファイルのパス
-        let pdfDoc = null;
+<div id="title">PDFページめくり</div>
 
-        pdfjsLib.getDocument(url).promise.then(pdf => {
-            pdfDoc = pdf;
-            const flipbook = document.getElementById("flipbook");
+<div id="container">
+    <div id="prev-button" class="nav-button">←</div>
+    <div id="magazine"></div>
+    <div id="next-button" class="nav-button">→</div>
+</div>
 
-            function addPage(num) {
-                const pageDiv = document.createElement("div");
-                pageDiv.className = "page";
-                const canvas = document.createElement("canvas");
-                pageDiv.appendChild(canvas);
-                flipbook.appendChild(pageDiv);
-                renderPage(num, canvas);
+<script>
+    const pdfUrl = 'pdf/doc.pdf';  // PDFのパス
+    let pdfDoc = null;
+
+    pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+        pdfDoc = pdf;
+        const magazine = document.getElementById("magazine");
+
+        function renderPage(num) {
+            return new Promise((resolve, reject) => {
+                pdfDoc.getPage(num).then(page => {
+                    const scale = 2.0;
+                    const viewport = page.getViewport({ scale });
+
+                    const canvas = document.createElement("canvas");
+                    const context = canvas.getContext("2d");
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+
+                    page.render(renderContext).promise.then(() => {
+                        const img = document.createElement("div");
+                        img.className = "turn-page";
+                        img.style.backgroundImage = `url(${canvas.toDataURL("image/jpeg")})`;
+                        resolve(img);
+                    }).catch(reject);
+                }).catch(reject);
+            });
+        }
+
+        async function loadPages() {
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const page = await renderPage(i);
+                magazine.appendChild(page);
             }
 
-            for (let i = 1; i <= pdf.numPages; i++) {
-                addPage(i);
-            }
-
-            $("#flipbook").turn({
+            $("#magazine").turn({
                 width: 900,
                 height: 600,
                 autoCenter: true,
-                display: "double",
-            });
-        });
-
-        function renderPage(num, canvas) {
-            pdfDoc.getPage(num).then(page => {
-                const scale = 2.0; // 高解像度
-                const viewport = page.getViewport({ scale });
-
-                // `turn.js` に合わせて `canvas` サイズを調整
-                canvas.width = 900 / 2;
-                canvas.height = 600;
-                const context = canvas.getContext('2d');
-
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext);
+                display: "double"
             });
         }
 
-        function nextPage() {
-            $("#flipbook").turn("next");
-        }
+        loadPages();
+    });
 
-        function prevPage() {
-            $("#flipbook").turn("previous");
-        }
-    </script>
+    $("#prev-button").click(() => $("#magazine").turn("previous"));
+    $("#next-button").click(() => $("#magazine").turn("next"));
+</script>
+
 </body>
 </html>
