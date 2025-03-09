@@ -22,14 +22,14 @@
             cursor: pointer;
         }
         #flipbook {
-            width: 800px;
+            width: 900px;  /* 見開きサイズ */
             height: 600px;
             margin: auto;
             background-color: white;
         }
         .page {
-            width: 400px;  /* 片ページの幅 */
-            height: 600px; /* 高さ */
+            width: 450px; /* 片ページのサイズ */
+            height: 600px;
             background: white;
             display: flex;
             align-items: center;
@@ -61,7 +61,6 @@
                 const pageDiv = document.createElement("div");
                 pageDiv.className = "page";
                 const canvas = document.createElement("canvas");
-                canvas.id = "page-" + num;
                 pageDiv.appendChild(canvas);
                 flipbook.appendChild(pageDiv);
                 renderPage(num, canvas);
@@ -72,7 +71,7 @@
             }
 
             $("#flipbook").turn({
-                width: 800,
+                width: 900,
                 height: 600,
                 autoCenter: true,
                 display: "double",
@@ -81,17 +80,19 @@
 
         function renderPage(num, canvas) {
             pdfDoc.getPage(num).then(page => {
-                const scale = 1.5;
+                const scale = 2.0; // 高解像度
                 const viewport = page.getViewport({ scale });
 
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
+                // `turn.js` に合わせて `canvas` サイズを調整
+                canvas.width = 900 / 2;
+                canvas.height = 600;
                 const context = canvas.getContext('2d');
 
-                page.render({
+                const renderContext = {
                     canvasContext: context,
                     viewport: viewport
-                });
+                };
+                page.render(renderContext);
             });
         }
 
