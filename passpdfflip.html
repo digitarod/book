@@ -3,46 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF.js パスワード付きPDF表示</title>
+    <title>PDFページめくり（パスワード対応）</title>
+
+    <!-- PDF.js & jQuery & Turn.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+
     <style>
-        #pdf-container {
-            width: 100%;
-            max-width: 800px;
-            margin: auto;
-            border: 1px solid #ccc;
+        body {
+            background: #ccc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
-        canvas {
-            width: 100%;
+
+        #title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
         }
+
+        #container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #magazine {
+            position: relative;
+            width: 900px;
+            height: 600px;
+            display: none;
+        }
+
+        .turn-page {
+            width: 450px;
+            height: 600px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 8px;
+            user-select: none;
+            z-index: 10;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        #prev-button { left: -70px; }
+        #next-button { right: -70px; }
     </style>
 </head>
 <body>
-    <h2 style="text-align: center;">PDF.js - パスワード付きPDF表示</h2>
-    <div id="pdf-container"></div>
 
-    <script>
-        const pdfPath = "pdf/docpass.pdf";
-        const pdfContainer = document.getElementById("pdf-container");
+<div id="title">PDFページめくり（パスワード対応）</div>
 
-        pdfjsLib.getDocument({
-            url: pdfPath,
-            password: prompt("PDFのパスワードを入力してください:")
-        }).promise.then(pdfDoc => {
-            for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-                pdfDoc.getPage(pageNum).then(page => {
-                    let canvas = document.createElement("canvas");
-                    pdfContainer.appendChild(canvas);
-                    let context = canvas.getContext("2d");
-                    let viewport = page.getViewport({ scale: 1.5 });
+<div id="container">
+    <div id="prev-button" class="nav-button">←</div>
+    <div id="magazine"></div>
+    <div id="next-button" class="nav-button">→</div>
+</div>
+
+<script>
+    const pdfUrl = "pdf/docpass.pdf";
+    let pdfDoc = null;
+    let pagesArray = [];
+    
+    pdfjsLib.getDocument({
+        url: pdfUrl,
+        password: prompt("PDFのパスワードを入力してください:")
+    }).promise.then(pdf => {
+        pdfDoc = pdf;
+
+        function renderPage(num) {
+            return new Promise((resolve, reject) => {
+                pdfDoc.getPage(num).then(page => {
+                    const scale = 2.0;
+                    const viewport = page.getViewport({ scale });
+                    const canvas = document.createElement("canvas");
+                    const context = canvas.getContext("2d");
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
-                    page.render({ canvasContext: context, viewport: viewport });
-                });
+
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+
+                    page.render(renderContext).promise.then(() => {
+                        const imgDiv = document.createElement("div");
+                        imgDiv.className = "turn-page";
+                        imgDiv.style.backgroundImage = `url(${canvas.toDataURL("image/jpeg")})`;
+                        pagesArray.push(imgDiv);
+                        resolve();
+                    }).catch(reject);
+                }).catch(reject);
+            });
+        }
+
+        async function loadPages() {
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                await renderPage(i);
             }
-        }).catch(error => {
-            alert("PDFの読み込みに失敗しました: " + error.message);
-        });
-    </script>
+
+            const magazine = document.getElementById("magazine");
+            pagesArray.forEach(page => magazine.appendChild(page));
+
+            $("#magazine").turn({
+                width: 900,
+                height: 600,
+                autoCenter: true,
+                display: "double"
+            });
+
+            $("#prev-button, #next-button").css("display", "flex");
+            $("#magazine").fadeIn();
+        }
+
+        loadPages();
+    }).catch(error => {
+        alert("PDFの読み込みに失敗しました: " + error.message);
+    });
+
+    $("#prev-button").click(() => $("#magazine").turn("previous"));
+    $("#next-button").click(() => $("#magazine").turn("next"));
+</script>
+
 </body>
 </html>
