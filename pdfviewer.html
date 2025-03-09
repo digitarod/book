@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF.jsでPDFを表示</title>
+    <title>PDF.js + Turn.js でページめくり</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4/turn.min.js"></script>
     <style>
         body {
             text-align: center;
             font-family: Arial, sans-serif;
-        }
-        canvas {
-            border: 1px solid black;
-            margin: 10px auto;
-            max-width: 90%;
-            height: auto;
+            background-color: #ddd;
         }
         .controls {
             margin: 10px;
@@ -24,67 +21,98 @@
             font-size: 16px;
             cursor: pointer;
         }
+        #flipbook {
+            width: 800px;
+            height: 600px;
+            margin: auto;
+            background-color: white;
+        }
+        .page {
+            width: 400px;  /* 片ページの幅 */
+            height: 600px; /* 高さ */
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
-    <h1>PDF.jsでPDFを表示</h1>
+    <h1>PDF.js + Turn.js</h1>
     <div class="controls">
         <button onclick="prevPage()">← 前のページ</button>
-        <span id="page-num"></span> / <span id="page-count"></span>
         <button onclick="nextPage()">次のページ →</button>
     </div>
-    <canvas id="pdf-canvas"></canvas>
+    <div id="flipbook"></div>
 
     <script>
         const url = 'pdf/doc.pdf'; // PDFファイルのパス
         let pdfDoc = null;
-        let pageNum = 1;
-        let pageRendering = false;
 
-        function renderPage(num) {
-            pageRendering = true;
+        pdfjsLib.getDocument(url).promise.then(pdf => {
+            pdfDoc = pdf;
+            const flipbook = document.getElementById("flipbook");
+
+            for (let i = 1; i <= pdf.numPages; i += 2) {
+                const pageSpread = document.createElement("div");
+                pageSpread.className = "spread";
+
+                const leftPage = document.createElement("div");
+                leftPage.className = "page";
+                const leftCanvas = document.createElement("canvas");
+                leftCanvas.id = "page-" + i;
+                leftPage.appendChild(leftCanvas);
+                pageSpread.appendChild(leftPage);
+                renderPage(i, leftCanvas);
+
+                if (i + 1 <= pdf.numPages) {
+                    const rightPage = document.createElement("div");
+                    rightPage.className = "page";
+                    const rightCanvas = document.createElement("canvas");
+                    rightCanvas.id = "page-" + (i + 1);
+                    rightPage.appendChild(rightCanvas);
+                    pageSpread.appendChild(rightPage);
+                    renderPage(i + 1, rightCanvas);
+                }
+
+                flipbook.appendChild(pageSpread);
+            }
+
+            $("#flipbook").turn({
+                width: 800,
+                height: 600,
+                autoCenter: true,
+                display: "double",
+            });
+        });
+
+        function renderPage(num, canvas) {
             pdfDoc.getPage(num).then(page => {
-                const scale = 1.2;
+                const scale = 2.0;
                 const viewport = page.getViewport({ scale });
 
-                const canvas = document.getElementById('pdf-canvas');
+                canvas.width = viewport.width / 2; // 左右均等になるように
+                canvas.height = viewport.height / 2;
                 const context = canvas.getContext('2d');
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
 
-                const renderContext = {
+                page.render({
                     canvasContext: context,
                     viewport: viewport
-                };
-
-                page.render(renderContext).promise.then(() => {
-                    pageRendering = false;
-                    document.getElementById('page-num').textContent = num;
                 });
             });
         }
 
         function nextPage() {
-            if (pageNum < pdfDoc.numPages && !pageRendering) {
-                pageNum++;
-                renderPage(pageNum);
-            }
+            $("#flipbook").turn("next");
         }
 
         function prevPage() {
-            if (pageNum > 1 && !pageRendering) {
-                pageNum--;
-                renderPage(pageNum);
-            }
+            $("#flipbook").turn("previous");
         }
-
-        pdfjsLib.getDocument(url).promise.then(pdf => {
-            pdfDoc = pdf;
-            document.getElementById('page-count').textContent = pdf.numPages;
-            renderPage(pageNum);
-        }).catch(error => {
-            console.error("PDFの読み込みに失敗しました:", error);
-        });
     </script>
 </body>
 </html>
