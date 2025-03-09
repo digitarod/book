@@ -57,29 +57,18 @@
             pdfDoc = pdf;
             const flipbook = document.getElementById("flipbook");
 
-            for (let i = 1; i <= pdf.numPages; i += 2) {
-                const pageSpread = document.createElement("div");
-                pageSpread.className = "spread";
+            function addPage(num) {
+                const pageDiv = document.createElement("div");
+                pageDiv.className = "page";
+                const canvas = document.createElement("canvas");
+                canvas.id = "page-" + num;
+                pageDiv.appendChild(canvas);
+                flipbook.appendChild(pageDiv);
+                renderPage(num, canvas);
+            }
 
-                const leftPage = document.createElement("div");
-                leftPage.className = "page";
-                const leftCanvas = document.createElement("canvas");
-                leftCanvas.id = "page-" + i;
-                leftPage.appendChild(leftCanvas);
-                pageSpread.appendChild(leftPage);
-                renderPage(i, leftCanvas);
-
-                if (i + 1 <= pdf.numPages) {
-                    const rightPage = document.createElement("div");
-                    rightPage.className = "page";
-                    const rightCanvas = document.createElement("canvas");
-                    rightCanvas.id = "page-" + (i + 1);
-                    rightPage.appendChild(rightCanvas);
-                    pageSpread.appendChild(rightPage);
-                    renderPage(i + 1, rightCanvas);
-                }
-
-                flipbook.appendChild(pageSpread);
+            for (let i = 1; i <= pdf.numPages; i++) {
+                addPage(i);
             }
 
             $("#flipbook").turn({
@@ -92,11 +81,11 @@
 
         function renderPage(num, canvas) {
             pdfDoc.getPage(num).then(page => {
-                const scale = 2.0;
+                const scale = 1.5;
                 const viewport = page.getViewport({ scale });
 
-                canvas.width = viewport.width / 2; // 左右均等になるように
-                canvas.height = viewport.height / 2;
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
                 const context = canvas.getContext('2d');
 
                 page.render({
