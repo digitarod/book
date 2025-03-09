@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF.js パスワード付きPDF表示</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        #pdf-container {
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid #ccc;
+        }
+        canvas {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align: center;">PDF.js - パスワード付きPDF表示</h2>
+    <div id="pdf-container"></div>
+
+    <script>
+        const pdfPath = "pdf/docpass.pdf";
+        const pdfContainer = document.getElementById("pdf-container");
+
+        pdfjsLib.getDocument({
+            url: pdfPath,
+            password: prompt("PDFのパスワードを入力してください:")
+        }).promise.then(pdfDoc => {
+            for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+                pdfDoc.getPage(pageNum).then(page => {
+                    let canvas = document.createElement("canvas");
+                    pdfContainer.appendChild(canvas);
+                    let context = canvas.getContext("2d");
+                    let viewport = page.getViewport({ scale: 1.5 });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    page.render({ canvasContext: context, viewport: viewport });
+                });
+            }
+        }).catch(error => {
+            alert("PDFの読み込みに失敗しました: " + error.message);
+        });
+    </script>
+</body>
+</html>
