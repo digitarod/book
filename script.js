@@ -18,7 +18,8 @@ function updatePageNumbers(view) {
 }
 
 function setupTurnJs() {
-    if ($magazine.turn('is')) {
+    // Check if turn.js is already initialized in a more robust way
+    if ($magazine.data('turn')) {
         $magazine.turn('destroy');
     }
     const isMobile = window.innerWidth < 900;
@@ -45,10 +46,8 @@ async function initializeViewer(password) {
     $title.addClass('hidden');
 
     try {
-        // 1. PDFドキュメントを読み込む
         const pdf = await pdfjsLib.getDocument({ url: pdfUrl, password: password }).promise;
 
-        // 2. 各ページを画像としてレンダリングする関数
         const renderPage = async (pageNumber) => {
             const page = await pdf.getPage(pageNumber);
             const viewport = page.getViewport({ scale: 2.0 });
@@ -60,25 +59,21 @@ async function initializeViewer(password) {
             return canvas.toDataURL('image/jpeg');
         };
 
-        // 3. 全てのページ要素を作成
         for (let i = 1; i <= pdf.numPages; i++) {
             const imageUrl = await renderPage(i);
             const $pageElement = $('<div>').css('background-image', `url(${imageUrl})`);
             $magazine.append($pageElement);
         }
 
-        // 4. 最終ページ（感想ページ）を追加
         const $reviewPage = $('<div>')
             .addClass('review-page')
             .html('<p>商品の感想を教えてください！</p><button class="review-button" onclick="window.location.href=\'https://digitarod.github.io/book/survey.html\'">感想を書く</button>');
         $magazine.append($reviewPage);
 
-        // 5. ローディング画面を非表示にし、ビューワを表示
         $loader.addClass('hidden');
         $container.removeClass('hidden');
         $pageNumbers.removeClass('hidden');
 
-        // 6. turn.jsを初期化
         setupTurnJs();
 
     } catch (err) {
@@ -90,7 +85,7 @@ async function initializeViewer(password) {
         } else if (err && err.name) {
             errorMessage = `エラー種別: ${err.name}`;
         }
-        alert(`PDFの読み込みに失敗しました.\n\n理由: ${errorMessage}`);
+        alert(`PDFの読み込みに失敗しました。\n\n理由: ${errorMessage}`);
     }
 }
 
