@@ -11,24 +11,16 @@ const $pageNumbers = $('#page-numbers');
 
 // --- Functions ---
 
-/**
- * Updates the page number display.
- * @param {Array<number>} view - The current pages in view.
- */
 function updatePageNumbers(view) {
     if (!view) return;
     $pageNumbers.find('#left-page').text(view[0] || '');
     $pageNumbers.find('#right-page').text(view[1] || '');
 }
 
-/**
- * Sets up or re-initializes the turn.js instance based on window size.
- */
 function setupTurnJs() {
     if ($magazine.turn('is')) {
         $magazine.turn('destroy');
     }
-
     const isMobile = window.innerWidth < 900;
     const display = isMobile ? 'single' : 'double';
     const width = isMobile ? window.innerWidth : 900;
@@ -42,19 +34,12 @@ function setupTurnJs() {
         gradients: true,
         acceleration: true,
         when: {
-            turned: (event, page, view) => {
-                updatePageNumbers(view);
-            }
-        }
+            turned: (event, page, view) => updatePageNumbers(view),
+        },
     });
-
     updatePageNumbers($magazine.turn('view'));
 }
 
-/**
- * Loads the PDF and renders its pages into the magazine.
- * @param {string} password - The password for the PDF.
- */
 async function loadMagazine(password) {
     $loader.removeClass('hidden');
     $title.addClass('hidden');
@@ -93,7 +78,15 @@ async function loadMagazine(password) {
     } catch (err) {
         $loader.addClass('hidden');
         $title.removeClass('hidden');
-        alert(`PDFの読み込みに失敗しました: ${err.message}`);
+        let errorMessage = '不明なエラーが発生しました。';
+        if (err) {
+            if (err.message) {
+                errorMessage = err.message;
+            } else {
+                errorMessage = JSON.stringify(err);
+            }
+        }
+        alert(`PDFの読み込みに失敗しました: ${errorMessage}`);
     }
 }
 
