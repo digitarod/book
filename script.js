@@ -1,3 +1,5 @@
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
 const pdfUrl = 'https://digitarod.github.io/book/pdf/docpass.pdf';
 
 // --- DOM Elements ---
@@ -96,11 +98,10 @@ async function loadMagazine(password) {
 }
 
 // --- Event Handlers ---
+let resizeTimeout;
 $(window).on('resize', () => {
-    // Debounce resize event for performance
-    let timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(setupTurnJs, 250);
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(setupTurnJs, 250);
 }).on('keydown', (e) => {
     if (e.key === 'ArrowLeft') $magazine.turn('previous');
     if (e.key === 'ArrowRight') $magazine.turn('next');
