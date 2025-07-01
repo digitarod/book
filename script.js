@@ -35,12 +35,13 @@ pdfjsLib.getDocument({ url: pdfUrl, password: password }).promise.then(pdf => {
         for (let i = 1; i <= pdfDoc.numPages; i++) {
             const url = await loadPage(i);
             const pageElement = $('<div>').css('background-image', 'url(' + url + ')');
-            if (i === pdfDoc.numPages) {
-                pageElement.addClass('review-page').html('<p>商品の感想を教えてください！</p><button class="review-button" onclick="window.location.href=\'https://digitarod.github.io/book/survey.html\'">感想を書く</button>');
-            }
             magazine.append(pageElement);
         }
 
+        const reviewPageElement = $('<div>')
+            .addClass('review-page')
+            .html('<p>商品の感想を教えてください！</p><button class="review-button" onclick="window.location.href=\'https://digitarod.github.io/book/survey.html\'">感想を書く</button>');
+        magazine.append(reviewPageElement);
 
         magazine.turn({
             width: 900,
