@@ -16,6 +16,15 @@ body {
     text-align: center;
 }
 
+#loader {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
 #container {
     position: relative;
     display: flex;
@@ -106,13 +115,13 @@ body {
 
 @media (max-width: 900px) {
     #magazine {
-        width: 80vw;
-        height: 80vh;
+        width: 100vw;
+        height: 100vh;
     }
 
     .turn-page {
-        width: 80vw;
-        height: 80vh;
+        width: 100vw;
+        height: 100vh;
     }
 
     .nav-button {
@@ -122,15 +131,23 @@ body {
     }
 
     #prev-button {
-        left: -50px;
+        left: 10px;
     }
 
     #next-button {
-        right: -50px;
+        right: 10px;
     }
 
     #page-numbers {
         width: 80vw;
         font-size: 12px;
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.5);
+        color: white;
+        padding: 5px;
+        border-radius: 5px;
     }
 }
