@@ -49,32 +49,54 @@
         <button class="btn btn-custom" onclick="handleNegativeFeedback()">よくなかった</button>
     </div>
     <div id="feedback-section" class="hidden">
-        <!-- フォームを追加 -->
-        <form id="feedback-form" action="https://script.google.com/macros/s/AKfycbyMCx6HGES_qMB4n0WEb6eCZj32etDpxldNeXjYzUqgUzEMGQIB-FOh7rct5yoeHF0c/exec" method="POST">
-            <textarea id="feedback" name="feedback" class="form-control text-dark" placeholder="感想をお聞かせください"></textarea>
-            <button type="submit" class="btn btn-custom mt-2">送信</button>
-        </form>
-    </div>
-    
-    <script>
-        function handlePositiveFeedback() {
-            window.location.href = "https://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first";
-        }
+  <!-- フォームを追加 -->
+  <form id="feedback-form">
+    <textarea id="feedback" name="feedback" class="form-control text-dark" placeholder="感想をお聞かせください"></textarea>
+    <button type="submit" class="btn btn-custom mt-2">送信</button>
+  </form>
+</div>
 
-        function handleNegativeFeedback() {
-            document.getElementById("feedback-section").classList.remove("hidden");
-        }
+<script>
+  function handlePositiveFeedback() {
+    window.location.href = "https://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first";
+  }
 
-        // フォーム送信の処理を変更
-        const form = document.getElementById("feedback-form");
-        form.addEventListener("submit", function (event) {
-            const feedback = document.getElementById("feedback").value;
-            if (!feedback.trim()) {
-                alert("感想を入力してください。");
-                event.preventDefault(); // フォームの送信を中止
-            }
-        });
-    </script>
+  function handleNegativeFeedback() {
+    document.getElementById("feedback-section").classList.remove("hidden");
+  }
+
+  // フォーム送信の処理を変更
+  const form = document.getElementById("feedback-form");
+  form.addEventListener("submit", function (event) {
+    event.preventDefault(); // フォームの通常送信を防ぐ
+
+    const feedback = document.getElementById("feedback").value.trim();
+    if (!feedback) {
+      alert("感想を入力してください。");
+      return;
+    }
+
+    // GASのWeb App URL
+    const gasUrl = "https://script.google.com/macros/s/AKfycbyMCx6HGES_qMB4n0WEb6eCZj32etDpxldNeXjYzUqgUzEMGQIB-FOh7rct5yoeHF0c/exec";
+
+    const formData = new FormData();
+    formData.append("feedback", feedback);
+
+    fetch(gasUrl, {
+      method: "POST",
+      body: formData,
+    })
+    .then(response => {
+      // フィードバック送信成功時にリダイレクト
+      window.location.href = "https://tk-0120.github.io/namaiki/thankyou.html";
+    })
+    .catch(error => {
+      alert("送信中にエラーが発生しました。もう一度お試しください。");
+      console.error(error);
+    });
+  });
+</script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
