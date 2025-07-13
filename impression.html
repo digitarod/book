@@ -6,34 +6,18 @@
 </head>
 <body>
   <h1>感想を送ってください</h1>
-  <form id="feedbackForm">
+  <form method="POST" action="【GASのURL】" target="hidden_iframe" onsubmit="showMessage()">
     <textarea name="feedback" rows="5" cols="30" placeholder="ここに感想を書いてください..."></textarea><br>
     <button type="submit">送信</button>
   </form>
+
+  <iframe name="hidden_iframe" style="display:none;"></iframe>
   <p id="message"></p>
 
   <script>
-    document.getElementById("feedbackForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const feedback = e.target.feedback.value;
-
-      fetch("https://script.google.com/macros/s/AKfycbz8dW-q4xjWqHNy81C9TbfG4YnyDg4JNRjYJxaCl9r8PaZSDkTtm0tRvhqxazv36CgXFg/exec", {
-        method: "POST",
-        body: JSON.stringify({ feedback }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("message").innerText = "送信されました。ありがとうございました！";
-        e.target.reset();
-      })
-      .catch(err => {
-        document.getElementById("message").innerText = "送信に失敗しました。";
-        console.error(err);
-      });
-    });
+    function showMessage() {
+      document.getElementById("message").innerText = "送信しました。ありがとうございました！";
+    }
   </script>
 </body>
 </html>
