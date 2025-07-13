@@ -6,17 +6,20 @@
 </head>
 <body>
   <h1>感想を送ってください</h1>
-  <form method="POST" action="https://script.google.com/macros/s/AKfycbzJe-KMpWuR0Rr6uIrqIItGRtkYVKcl51felNArk2hqTyKZU6ig0kwjj3Z81LCoTVZ3Rg/exec" target="hidden_iframe" onsubmit="showMessage()">
-    <textarea name="feedback" rows="5" cols="30" placeholder="ここに感想を書いてください..."></textarea><br>
+  <form id="feedbackForm" method="POST" action="https://script.google.com/macros/s/AKfycbzJe-KMpWuR0Rr6uIrqIItGRtkYVKcl51felNArk2hqTyKZU6ig0kwjj3Z81LCoTVZ3Rg/exec" target="hidden_iframe" onsubmit="submitted=true;">
+    <textarea name="feedback" rows="5" cols="30" placeholder="ここに感想を書いてください..." required></textarea><br>
     <button type="submit">送信</button>
   </form>
 
-  <iframe name="hidden_iframe" style="display:none;"></iframe>
-  <p id="message"></p>
+  <iframe name="hidden_iframe" style="display:none;" onload="redirectIfSubmitted()"></iframe>
 
   <script>
-    function showMessage() {
-      document.getElementById("message").innerText = "送信しました。ありがとうございました！";
+    let submitted = false;
+
+    function redirectIfSubmitted() {
+      if (submitted) {
+        window.location.href = "finish.html";
+      }
     }
   </script>
 </body>
