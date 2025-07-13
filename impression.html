@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>感想フォーム</title>
+</head>
+<body>
+  <h1>感想を送ってください</h1>
+  <form id="feedbackForm">
+    <textarea name="feedback" rows="5" cols="30" placeholder="ここに感想を書いてください..."></textarea><br>
+    <button type="submit">送信</button>
+  </form>
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("feedbackForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const feedback = e.target.feedback.value;
+
+      fetch("【ここにGASのURLを貼る】", {
+        method: "POST",
+        body: JSON.stringify({ feedback }),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("message").innerText = "送信されました。ありがとうございました！";
+        e.target.reset();
+      })
+      .catch(err => {
+        document.getElementById("message").innerText = "送信に失敗しました。";
+        console.error(err);
+      });
+    });
+  </script>
+</body>
+</html>
