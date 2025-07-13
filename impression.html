@@ -17,7 +17,7 @@
       e.preventDefault();
       const feedback = e.target.feedback.value;
 
-      fetch("【ここにGASのURLを貼る】", {
+      fetch("https://script.google.com/macros/s/AKfycbz8dW-q4xjWqHNy81C9TbfG4YnyDg4JNRjYJxaCl9r8PaZSDkTtm0tRvhqxazv36CgXFg/exec", {
         method: "POST",
         body: JSON.stringify({ feedback }),
         headers: {
